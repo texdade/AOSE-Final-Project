@@ -8,6 +8,7 @@ add callDrone(Box) && true => [
         add_agent_belief(Drone,busy)    
     ),
     add_agent_desire(Drone, deliverToRailbot(Box)),
+    del_desire(callDrone(Box)),
     stop
 ].
 

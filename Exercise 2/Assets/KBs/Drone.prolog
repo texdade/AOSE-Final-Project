@@ -1,19 +1,36 @@
 :- consult("UnityLogic/KBs/UnityLogicAgentAPI.prolog").
 
+/* picks up a box and gives it to the appropriate railbot */
 add deliverToRailbot(Box) && (\+ belief need_recharge) => [
+    /* Take off and go to pick up the box */
     cr takeoff,
     cr goto(Box),
     cr land,
     act pickUp(Box),
     cr takeoff,
-    check_artifact_belief(Box, start(S)),
-    check_artifact_belief(Box, destination(D)),
+    check_artifact_belief(Box, start_area(S)),
+    check_artifact_belief(Box, dest_area(D)),
     act (getLandingZone(S,D), Platform),
     cr goto(Platform),
     cr land,
     act dropDown,
-    add_belief(nedd_recharge),
+
+    /* Notify the railbot */
+    act (getRailBot(S), RailBot),
+    add_agent_desire(RailBot, passBox(Box)),
+
+    /* Recharge after each travel */
+    add_belief(need_recharge),
     add_desire(recharge),
-    remove_belief(busy),
+    del_belief(busy),
+    stop
+].
+
+add recharge && (belief need_recharge) => [
+    cr takeoff,
+    act (getChargingStation, CStation),
+    cr goto(CStation),
+    cr land,
+    del_belief(need_recharge),
     stop
 ].
