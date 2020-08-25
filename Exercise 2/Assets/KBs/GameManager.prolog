@@ -28,7 +28,7 @@ add createBox(StartIndex, DestIndex) && true =>
 	add_artifact_belief(B, start(S)),
 	add_artifact_belief(B, destination(D)),
 
-	add_agent_desire(S, call_drone(B)),
+	add_agent_desire(S, callDrone(B)),
 
 	stop
 ].
