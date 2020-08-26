@@ -30,7 +30,6 @@ add getRailbotToDeliver(Box, S) && (\+ belief need_recharge) => [
         add_agent_belief(RailBot,busy)    
     ),
     add_agent_desire(RailBot, passBox(Box)),
-
     /* Recharge after each travel */
     add_belief(need_recharge),
     add_desire(recharge),
