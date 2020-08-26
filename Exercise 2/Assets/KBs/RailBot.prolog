@@ -6,6 +6,18 @@ desire sortBox.
 add passBox(Box) && (\+ belief need_recharge) => [
     /* picks up box and passes it to the sorting bot */
     cr goto(Box),
+    /* check boxes start and dest areas */
+    add_desire(checkBox(Box)),
+    stop
+]. 
+
+/* If the start and destination area are different, bring box to exchange area*/
+add checkBox(Box) && (\+ belief need_recharge) => [
+    check_artifact_belief(Box, start_area(Start)),
+    check_artifact_belief(Box, dest_area(Dest)),
+    
+    Start \= Dest,
+
     act pickUp(Box),
     act (getExchangeArea, ExchArea),
     cr goto(ExchArea),
@@ -17,7 +29,19 @@ add passBox(Box) && (\+ belief need_recharge) => [
     add_desire(recharge),
     add_belief(need_recharge),
     stop
-]. 
+].
+
+/* If start and dest area are the same, railbot immediately calls a drone*/
+add checkBox(Box) && (\+ belief need_recharge) => [
+    check_artifact_belief(Box, start_area(Start)),
+    check_artifact_belief(Box, dest_area(Dest)),
+    
+    Start = Dest,
+
+    /* notify a drone that it needs to deliver a package */
+    add_desire(contactDrone(Box)),
+    stop
+].
 
 /* picks up box from exchange station and moves it to the respective
    coloured tile */
@@ -32,6 +56,7 @@ add sortBox && (\+ belief need_recharge, belief need_to_sort(Box)) => [
     act dropDown(Area),
 
     /* notify a drone that it needs to deliver a package */
+    del_belief(need_to_sort(Box)),
     add_desire(contactDrone(Box)),
     stop
 ].
@@ -44,7 +69,6 @@ add contactDrone(Box) && (\+ belief need_recharge) => [
         add_agent_belief(Drone,busy)    
     ),
     add_agent_desire(Drone, deliverToWHouse(Box)),
-    del_belief(need_to_sort(Box)),
     add_desire(recharge),
     add_belief(need_recharge),
     stop
