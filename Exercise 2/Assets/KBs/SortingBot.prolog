@@ -11,10 +11,20 @@ add sortBox(Box) && (\+ belief need_recharge) => [
     cr goto(ExchArea),
     act dropDown(ExchArea),
 
+    /* try to get the railbot attention */
+    add_desire(getRailbot(Box, D)),
+    stop
+].
+
+add getRailbot(Box, D) && (\+ belief need_recharge) => [
     /* notify the railbot of the area that it needs to sort the box */
     act (getRailBot(D), RailBot),
+    ( /*Mark the drone as busy*/
+        not(check_agent_belief(RailBot,busy)),
+        add_agent_belief(RailBot,busy)    
+    ),
     add_agent_desire(RailBot, sortBox(Box)),
-
+    del_belief(busy),
     /* go to recharge station */
     add_desire(recharge),
     add_belief(need_recharge),

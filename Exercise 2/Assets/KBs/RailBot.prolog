@@ -8,14 +8,24 @@ add passBox(Box) && (\+ belief need_recharge) => [
     act (getExchangeArea, ExchArea),
     cr goto(ExchArea),
     act dropDown(ExchArea),
-    act (getSortingBot, SortBot),
-    add_agent_desire(SortBot, sortBox(Box)),
+    /* try to get the sortbot attention */
+    add_desire(getSortbot(Box)),
+    stop
+]. 
 
+add getSortbot(Box) && (\+ belief need_recharge) => [
+    act (getSortingBot, SortBot),
+    ( /*Mark the bot as busy*/
+        not(check_agent_belief(SortBot,busy)),
+        add_agent_belief(SortBot,busy)    
+    ),
+    add_agent_desire(SortBot, sortBox(Box)),
+    del_belief(busy),
     /* then goes for a recharge */
     add_desire(recharge),
     add_belief(need_recharge),
     stop
-]. 
+].
 
 /* picks up box from exchange station and moves it to the respective
    coloured tile */
@@ -23,7 +33,7 @@ add sortBox(Box) && (\+ belief need_recharge) => [
     /* pick up box and read its destination, then drop the box the appropriate area */
     cr goto(Box),
     act pickUp(Box),
-    check_artifact_belief(start_area(S)),
+    check_artifact_belief(Box, start_area(S)),
     act (getArea(S), Area),
     cr goto(Area),
     act dropDown(Area),
@@ -40,7 +50,8 @@ add contactDrone(Box) && (\+ belief need_recharge) => [
         not(check_agent_belief(Drone,busy)),
         add_agent_belief(Drone,busy)    
     ),
-    add_agent_desire(deliverToWHouse(Box)),
+    add_agent_desire(Drone, deliverToWHouse(Box)),
+    del_belief(busy),
     add_desire(recharge),
     add_belief(need_recharge),
     stop

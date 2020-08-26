@@ -12,3 +12,9 @@ add callDrone(Box) && true => [
     stop
 ].
 
+/* destroy the box */
+add deliver(Box) && true => [
+    act destroy(Box),
+    stop
+].
+
