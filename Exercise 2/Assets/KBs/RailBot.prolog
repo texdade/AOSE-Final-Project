@@ -1,5 +1,7 @@
 :- consult("UnityLogic/KBs/UnityLogicAgentAPI.prolog").
 
+desire sortBox.
+
 /* receives a new box from a drone and passes it to the sortingbot */
 add passBox(Box) && (\+ belief need_recharge) => [
     /* picks up box and passes it to the sorting bot */
@@ -11,7 +13,6 @@ add passBox(Box) && (\+ belief need_recharge) => [
     /* notifies the sortingbot */
     act (getSortingBot, SortBot),
     add_agent_belief(SortBot, need_to_sort(Box)),
-    del_belief(busy),
     /* then goes for a recharge */
     add_desire(recharge),
     add_belief(need_recharge),
@@ -43,7 +44,6 @@ add contactDrone(Box) && (\+ belief need_recharge) => [
         add_agent_belief(Drone,busy)    
     ),
     add_agent_desire(Drone, deliverToWHouse(Box)),
-    del_belief(busy),
     del_belief(need_to_sort(Box)),
     add_desire(recharge),
     add_belief(need_recharge),
@@ -55,5 +55,6 @@ add recharge && (belief need_recharge) => [
     cr goto(ChargeStation),
     del_belief(need_recharge),
     add_desire(sortBox),
+    del_belief(busy),
     stop
 ].
